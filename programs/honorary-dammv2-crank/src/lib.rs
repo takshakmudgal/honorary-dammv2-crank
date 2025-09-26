@@ -38,12 +38,9 @@ pub mod honorary_dammv2_crank {
         Ok(())
     }
 
-    /// Create honorary DAMM position owned by our owner PDA.
-    /// Client must pass DAMM's expected remaining_accounts in exact order:
-    /// [ position_nft_mint, position_nft_account, position_pda, pool_authority, token_program, system_program ]
     pub fn create_honorary_position(
         ctx: Context<CreateHonorary>,
-        _pool_pubkey: Pubkey, // for future validation
+        _pool_pubkey: Pubkey,
         quote_mint: Pubkey,
     ) -> Result<()> {
         // validate quote mint supplied equals account
