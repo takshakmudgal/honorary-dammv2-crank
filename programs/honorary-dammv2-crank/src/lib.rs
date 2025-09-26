@@ -43,14 +43,12 @@ pub mod honorary_dammv2_crank {
         _pool_pubkey: Pubkey,
         quote_mint: Pubkey,
     ) -> Result<()> {
-        // validate quote mint supplied equals account
         require_keys_eq!(
             ctx.accounts.quote_mint.key(),
             quote_mint,
             ErrorCode::QuoteMintMismatch
         );
 
-        // derive owner PDA and check
         let (owner_pda, _bump) = Pubkey::find_program_address(
             &[OWNER_PDA_SEED, ctx.accounts.vault.key().as_ref()],
             ctx.program_id,
@@ -61,7 +59,6 @@ pub mod honorary_dammv2_crank {
             ErrorCode::InvalidOwnerPda
         );
 
-        // Build DAMM create_position instruction
         let damm_program = Pubkey::from_str(DAMM_V2_PROGRAM_ID)
             .map_err(|_| Error::from(ErrorCode::InvalidDammId))?;
         let discrim = &hash(b"global:create_position").to_bytes()[..8];
