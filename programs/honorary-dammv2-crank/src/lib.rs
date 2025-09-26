@@ -63,13 +63,12 @@ pub mod honorary_dammv2_crank {
             .map_err(|_| Error::from(ErrorCode::InvalidDammId))?;
         let discrim = &hash(b"global:create_position").to_bytes()[..8];
 
-        // order of AccountMeta must match DAMM's create_position accounts
         let ix = Instruction {
             program_id: damm_program,
             accounts: vec![
                 AccountMeta::new_readonly(ctx.accounts.owner_pda.key(), false),
-                AccountMeta::new(ctx.remaining_accounts[0].key(), true), // position_nft_mint (must be signer)
-                AccountMeta::new(ctx.remaining_accounts[1].key(), false), // position_nft_account
+                AccountMeta::new(ctx.remaining_accounts[0].key(), true),
+                AccountMeta::new(ctx.remaining_accounts[1].key(), false),
                 AccountMeta::new(ctx.accounts.pool.key(), false),
                 AccountMeta::new(ctx.remaining_accounts[2].key(), false), // position PDA
                 AccountMeta::new(ctx.remaining_accounts[3].key(), false), // pool_authority
