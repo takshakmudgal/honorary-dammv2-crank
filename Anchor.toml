@@ -6,14 +6,14 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-honorary_dammv2_crank = "DECdHeLKbHMgMB6jq5NCzYcF4pY111bkoSiX3YntW1CC"
+honorary_dammv2_crank = "ddcEKSibupo9XMaeHH66rVkpqCpWybXtAZWaBbMbF3h"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "localnet"
-wallet = "~/.config/solana/dev.json"
+wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
