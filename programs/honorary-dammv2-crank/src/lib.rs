@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
-use solana_program::{
+use anchor_lang::solana_program::{
     hash::hash,
     instruction::{AccountMeta, Instruction},
     program::invoke_signed,
 };
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 use std::str::FromStr;
 
 pub mod error;
