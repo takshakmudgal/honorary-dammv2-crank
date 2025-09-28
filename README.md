@@ -22,6 +22,10 @@ This program implements a fee distribution mechanism for Star's fundraising plat
 
 ## Architecture
 
+#### *Scratch understanding from my excalidraw board of the bounty.*
+
+<img width="2874" height="1559" alt="damm-anchor-module" src="https://github.com/user-attachments/assets/4f0312b4-144e-4229-a7fb-eabf32098f8c" />
+
 ### Program Structure
 
 ```
