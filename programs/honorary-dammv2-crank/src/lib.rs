@@ -59,14 +59,9 @@ pub mod honorary_dammv2_crank {
         tick_upper_index: i32,
         liquidity: u128,
     ) -> Result<()> {
-        // Validate that the position will only accrue quote fees
-        // For a position to only accrue fees in quote (token B):
-        // - The position must be out of range
-        // - tick_upper must be less than current tick (price is above the position range)
         let pool = &ctx.accounts.pool;
         let current_tick_index = pool.tick_current;
 
-        // Ensure position is out of range on the correct side for quote-only fees
         require!(
             tick_upper_index < current_tick_index,
             ErrorCode::InvalidTickRange
@@ -80,7 +75,6 @@ pub mod honorary_dammv2_crank {
         let seeds = &[b"investor_fee_pos_owner", vault_key.as_ref()];
         let signer_seeds = &[&seeds[..]];
 
-        // Open position with liquidity
         let discriminator = [48, 215, 197, 153, 96, 203, 180, 133];
         let mut ix_data = discriminator.to_vec();
         ix_data.extend_from_slice(&tick_lower_index.to_le_bytes());
@@ -532,7 +526,7 @@ pub struct InitializePolicy<'info> {
         bump
     )]
     pub policy: Account<'info, Policy>,
-    /// CHECK: Vault key
+    /// CHECK: vault identifier
     pub vault: AccountInfo<'info>,
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -541,25 +535,25 @@ pub struct InitializePolicy<'info> {
 
 #[derive(Accounts)]
 pub struct InitializeHonoraryPosition<'info> {
-    /// CHECK: Vault key
+    /// CHECK: vault identifier
     pub vault: AccountInfo<'info>,
     #[account(
         seeds = [b"investor_fee_pos_owner", vault.key().as_ref()],
         bump
     )]
     pub owner_pda: SystemAccount<'info>,
-    /// CHECK: This account is validated and initialized by the DAMM V2 program
+    /// CHECK: validated by DAMM program
     #[account(mut)]
     pub position_nft_mint: UncheckedAccount<'info>,
-    /// CHECK: This account is validated and used by the DAMM V2 program for position NFT
+    /// CHECK: validated by DAMM program
     #[account(mut)]
     pub position_nft_account: UncheckedAccount<'info>,
     #[account(mut, owner = DAMM_V2_PROGRAM_ID)]
     pub pool: Account<'info, Pool>,
-    /// CHECK: Position account created and managed by the DAMM V2 program
+    /// CHECK: validated by DAMM program
     #[account(mut)]
     pub position: UncheckedAccount<'info>,
-    /// CHECK: Pool authority PDA, validated by address constraint
+    /// CHECK: address constraint
     #[account(address = POOL_AUTHORITY)]
     pub pool_authority: UncheckedAccount<'info>,
     #[account(mut)]
@@ -567,16 +561,16 @@ pub struct InitializeHonoraryPosition<'info> {
     #[account(address = TOKEN22_PROGRAM_ID)]
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
-    /// CHECK: Event authority PDA
+    /// CHECK: event authority
     pub event_authority: UncheckedAccount<'info>,
-    /// CHECK: DAMM V2 program ID, validated by address constraint
+    /// CHECK: address constraint
     #[account(address = DAMM_V2_PROGRAM_ID)]
     pub damm_program: UncheckedAccount<'info>,
 }
 
 #[derive(Accounts)]
 pub struct InitializeProgress<'info> {
-    /// CHECK: Vault key
+    /// CHECK: vault identifier
     pub vault: AccountInfo<'info>,
     #[account(
         init,
@@ -593,7 +587,7 @@ pub struct InitializeProgress<'info> {
 
 #[derive(Accounts)]
 pub struct InitializeTreasuryAccounts<'info> {
-    /// CHECK: Vault key
+    /// CHECK: vault identifier
     pub vault: AccountInfo<'info>,
     #[account(
         seeds = [b"investor_fee_pos_owner", vault.key().as_ref()],
@@ -623,7 +617,7 @@ pub struct InitializeTreasuryAccounts<'info> {
 
 #[derive(Accounts)]
 pub struct Crank<'info> {
-    /// CHECK: Vault key
+    /// CHECK: vault identifier
     pub vault: AccountInfo<'info>,
     #[account(
         seeds = [b"investor_fee_pos_owner", vault.key().as_ref()],
@@ -657,15 +651,15 @@ pub struct Crank<'info> {
     pub token_vault_a: Account<'info, TokenAccount>,
     #[account(mut)]
     pub token_vault_b: Account<'info, TokenAccount>,
-    /// CHECK: Pool authority PDA, validated by address constraint
+    /// CHECK: address constraint
     #[account(address = POOL_AUTHORITY)]
     pub pool_authority: UncheckedAccount<'info>,
     pub pool: Account<'info, Pool>,
     #[account(mut)]
     pub position_nft_account: Account<'info, TokenAccount>,
-    /// CHECK: Event authority PDA
+    /// CHECK: event authority
     pub event_authority: UncheckedAccount<'info>,
-    /// CHECK: DAMM V2 program ID, validated by address constraint
+    /// CHECK: address constraint
     #[account(address = DAMM_V2_PROGRAM_ID)]
     pub damm_program: UncheckedAccount<'info>,
 }
@@ -678,19 +672,19 @@ pub struct CreateStream<'info> {
     pub sender: Signer<'info>,
     #[account(mut)]
     pub sender_tokens: Account<'info, TokenAccount>,
-    /// CHECK: Streamflow metadata account, will be validated by Streamflow program
+    /// CHECK: validated by Streamflow
     #[account(mut)]
     pub metadata: UncheckedAccount<'info>,
     #[account(mut)]
     pub escrow_tokens: Account<'info, TokenAccount>,
-    /// CHECK: Streamflow withdrawor account, will be validated by Streamflow program
+    /// CHECK: validated by Streamflow
     #[account(mut)]
     pub withdrawor: UncheckedAccount<'info>,
     pub mint: Account<'info, Mint>,
-    /// CHECK: Fee oracle account
+    /// CHECK: fee oracle
     pub fee_oracle: UncheckedAccount<'info>,
     pub rent: Sysvar<'info, Rent>,
-    /// CHECK: Streamflow program ID, validated by address constraint
+    /// CHECK: address constraint
     #[account(address = STREAMFLOW_PROGRAM_ID)]
     pub timelock_program: UncheckedAccount<'info>,
     pub token_program: Program<'info, Token>,
@@ -868,7 +862,7 @@ mod tests {
     #[test]
     fn test_24hour_gate() {
         let last_distribution: u64 = 1000000;
-        let now: u64 = 1000000 + 86399; // 23h 59m 59s later
+        let now: u64 = 1000000 + 86399;
 
         assert!(now < last_distribution + 86400, "Must wait 24 hours");
 
@@ -881,7 +875,7 @@ mod tests {
 
     #[test]
     fn test_dust_handling() {
-        let min_payout: u64 = 1000000; // 1 token minimum
+        let min_payout: u64 = 1000000;
         let small_amount: u64 = 999999;
         let valid_amount: u64 = 1000000;
 
@@ -891,9 +885,9 @@ mod tests {
 
     #[test]
     fn test_daily_cap() {
-        let daily_cap: u64 = 100000000000; // 100k tokens
-        let claimed_fees: u64 = 200000000000; // 200k tokens
-        let investor_share_bps: u16 = 5000; // 50%
+        let daily_cap: u64 = 100000000000;
+        let claimed_fees: u64 = 200000000000;
+        let investor_share_bps: u16 = 5000;
 
         let intended = (claimed_fees as u128 * investor_share_bps as u128 / 10000) as u64;
         let capped = intended.min(daily_cap);
@@ -903,13 +897,13 @@ mod tests {
 
     #[test]
     fn test_locked_fraction_calculation() {
-        let y0: u64 = 1000000000000; // 1M tokens
-        let locked_total: u64 = 750000000000; // 750k locked
+        let y0: u64 = 1000000000000;
+        let locked_total: u64 = 750000000000;
 
         let f_locked = (locked_total * 10000) / y0;
         assert_eq!(f_locked, 7500, "Should be 75% locked");
 
-        let investor_fee_share_bps: u16 = 5000; // 50% base
+        let investor_fee_share_bps: u16 = 5000;
         let eligible_bps = investor_fee_share_bps.min(f_locked as u16);
         assert_eq!(
             eligible_bps, 5000,

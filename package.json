@@ -2,7 +2,11 @@
   "license": "ISC",
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "test:unit": "anchor test tests/honorary-dammv2-crank.ts",
+    "test:integration": "anchor test tests/integration-e2e.ts",
+    "test:all": "anchor test",
+    "setup:env": "./scripts/setup-test-env.sh"
   },
   "dependencies": {
     "@coral-xyz/anchor": "0.31.0"
